@@ -14,6 +14,8 @@ start2:
 	movw %ax, %fs
 	movw %ax, %gs
 
+	call clear_screen # 调用清屏函数
+
 	movw $msg, %ax
 	movw %ax, %bp
 	movw $0x1301, %ax
@@ -24,6 +26,14 @@ start2:
 
 loop:
 	jmp loop
+
+clear_screen:
+	movw $0x0600, %ax # ah = 0x06（功能号），al = 0x00（清屏）
+	movw $0x0700, %bx # bh = 0x07（属性字节：黑底白字）
+	movw $0x0000, %cx # ch = 0（起始行），cl = 0（起始列）
+	movw $0x184f, %dx # dh = 24（结束行），dl = 79（结束列）
+	int $0x10         # 调用 BIOS 中断 0x10
+	ret
 
 msg:
 	.ascii "Hello World!"
