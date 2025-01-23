@@ -7,10 +7,22 @@ LDFLAGS := -Ttext 0x0 -s --oformat binary
 
 image: linux.img
 
-linux.img: bootsect.o
+linux.img: tools/build bootsect setup
+	./tools/build bootsect setup > $@
+
+tools/build: tools/build.c
+	gcc -o $@ $<
+
+bootsect: bootsect.o
 	$(LD) $(LDFLAGS) -o $@ $<
 
 bootsect.o: bootsect.S
+	$(AS) -o $@ $<
+
+setup: setup.o
+	$(LD) $(LDFLAGS) -e _start_setup -o $@ $<
+
+setup.o: setup.S
 	$(AS) -o $@ $<
 
 run: linux.img
@@ -18,4 +30,7 @@ run: linux.img
 
 clean:
 	rm -f *.o
+	rm -f bootsect
+	rm -f setup
+	rm -f tools/build
 	rm -f linux.img

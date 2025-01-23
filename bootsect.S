@@ -1,28 +1,59 @@
-BOOTSEG = 0x7c0
+SETUPLEN  = 4
+BOOTSEG   = 0x7c0
+INITSEG   = 0x9000
+SETUPSEG  = 0x9020
+ROOT_DEV  = 0x000
 
 .code16
 .text
 .global _start
 
 _start:
-	jmpl $BOOTSEG, $start2
-
-start2:
 	movw $BOOTSEG, %ax
 	movw %ax, %ds
+	movw $INITSEG, %ax
 	movw %ax, %es
-	movw %ax, %fs
-	movw %ax, %gs
+	movw $256, %cx
+	subw %si, %si
+	subw %di, %di
+
+	rep
+	movsw
 
 	call clear_screen # 调用清屏函数
 
+	jmpl $INITSEG, $go
+
+go:
+	movw %cs, %ax
+	movw %ax, %ds
+	movw %ax, %es
+	movw %ax, %ss
+	movw $0xff00, %sp
+
+load_setup:
+	movw $0x0000, %dx
+	movw $0x0002, %cx
+	movw $0x0200, %bx
+	movb $SETUPLEN, %al
+	movb $0x02, %ah
+	int  $0x13
+	jnc  ok_load_setup
+	movw $0x0000, %dx
+	movw $0x0000, %ax
+	int  $0x13
+	jmp  load_setup
+
+ok_load_setup:
 	movw $msg, %ax
 	movw %ax, %bp
-	movw $0x1301, %ax
-	movw $0x0c, %bx # bh = 0，bl = 0c（红色）
-	movw $12, %cx   # cx = 串长度
-	movw $0x00, %dx # dh = 行号（0 表示第一行），dl = 列号（0 表示第一列）
-	int $0x10       # 10h 号中断，通知显卡刷新内容
+	movw $0x01301, %ax
+	movw $0x0c, %bx
+	movw $33, %cx
+	movw $0, %dx
+	int  $0x10
+
+	jmpl $SETUPSEG, $0
 
 loop:
 	jmp loop
@@ -36,8 +67,10 @@ clear_screen:
 	ret
 
 msg:
-	.ascii "Hello World!"
+	.ascii "bootsect.S: setup has been loaded"
 
-.org 510
+.org 508
+root_dev:
+	.word ROOT_DEV
 boot_flag:
 	.word 0xaa55
