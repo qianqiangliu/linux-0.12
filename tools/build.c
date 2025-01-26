@@ -105,7 +105,6 @@ int main(int argc, char **argv)
 		i+=c;
 	}
 
-	/*
 	if ((id = open(argv[3], O_RDONLY, 0)) < 0)
 		die("Unable to open 'system'");
 	for (i = 0; (c = read(id, buf, sizeof(buf))) > 0; i += c)
@@ -115,7 +114,6 @@ int main(int argc, char **argv)
 	fprintf(stderr, "System is %d bytes.\n", i);
 	if (i > SYS_SIZE * 16)
 		die("System is too big");
-	*/
 
 	return 0;
 }
