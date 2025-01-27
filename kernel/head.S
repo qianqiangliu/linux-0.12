@@ -6,12 +6,15 @@ startup_32:
 	movw %ax, %ds
 	movw %ax, %es
 	movw %ax, %fs
-
-	movl $0x18, %eax
 	movw %ax, %gs
 
 	call setup_idt
-	int $0x80
+	call setup_gdt
+
+	movl $0x10, %eax
+	movw %ax, %ds
+	movw %ax, %es
+	movw %ax, %fs
 
 	movl $0x18, %eax
 	movw %ax, %gs
@@ -20,6 +23,7 @@ startup_32:
 	movb $0x42, %al
 	movw %ax, %gs:(%edi)
 
+	int $0x80
 loop:
 	jmp loop
 
@@ -37,6 +41,10 @@ rp_sidt:
 	decl %ecx
 	jne  rp_sidt
 	lidt idt_descr
+	ret
+
+setup_gdt:
+	lgdt gdt_descr
 	ret
 
 ignore_int:
@@ -70,5 +78,20 @@ idt_descr:
 	.word 256 * 8 - 1
 	.long idt
 
+.align 4
+.word 0
+gdt_descr:
+	.word 256 * 8 - 1
+	.long gdt
+
+.align 8
 idt:
 	.fill 256, 8, 0
+
+gdt:
+	.quad 0x0000000000000000
+	.quad 0x00c09a0000000fff
+	.quad 0x00c0920000000fff
+	.quad 0x00c0f20b8000ffff
+	.quad 0x0000000000000000
+	.fill 251, 8,0
