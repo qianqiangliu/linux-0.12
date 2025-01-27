@@ -10,6 +10,7 @@ startup_32:
 
 	call setup_idt
 	call setup_gdt
+	call set_clock_idt
 
 	movl $0x10, %eax
 	movw %ax, %ds
@@ -18,12 +19,10 @@ startup_32:
 
 	movl $0x18, %eax
 	movw %ax, %gs
-	movl $0x0, %edi
-	movb $0xf, %ah
-	movb $0x42, %al
-	movw %ax, %gs:(%edi)
 
 	int $0x80
+	sti
+
 loop:
 	jmp loop
 
@@ -70,6 +69,24 @@ ignore_int:
 	popl  %edx
 	popl  %ecx
 	popl  %eax
+	iret
+
+set_clock_idt:
+	leal clock_handle, %edx
+	movl $0x00080000, %eax
+	movw %dx, %ax
+	movw $0x8e00, %dx
+	leal idt, %edi
+	addl $0x100, %edi
+	movl %eax, (%edi)
+	movl %edx, 4(%edi)
+	ret
+clock_handle:
+	movl $0x96, %edi
+	incb %gs:(%edi)
+	/* send EOI to 20h port */
+	movb $0x20, %al
+	outb %al, $0x20
 	iret
 
 .align 4
