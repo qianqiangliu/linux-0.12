@@ -13,7 +13,7 @@ linux.img: tools/build bootsect setup kernel/system
 tools/build: tools/build.c
 	gcc -o $@ $<
 
-kernel/system:
+kernel/system: kernel/head.S kernel/*.c
 	cd kernel; make system; cd ..
 
 bootsect: bootsect.o
