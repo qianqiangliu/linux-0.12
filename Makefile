@@ -38,3 +38,4 @@ clean:
 	rm -f tools/build
 	rm -f linux.img
 	cd kernel; make clean; cd ..
+	cd lib; make clean; cd ..
