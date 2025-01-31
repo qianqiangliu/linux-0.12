@@ -5,3 +5,4 @@ tools/build
 linux.img
 kernel/system
 kernel/chr_drv/chr_drv.a
+lib/lib.a

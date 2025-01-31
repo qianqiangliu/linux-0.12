@@ -108,7 +108,6 @@ void con_init(void)
 
 	gotoxy(ORIG_X, ORIG_Y);
 	set_cursor();
-	console_print("hello", 5);
 }
 
 void console_print(const char *buf, int nr)
