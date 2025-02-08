@@ -1,5 +1,3 @@
-COMPILE_PREFIX ?= i386-jos-elf-
-
 AS := $(COMPILE_PREFIX)as --32
 LD := $(COMPILE_PREFIX)ld -m elf_i386
 GCC := gcc
